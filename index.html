@@ -819,6 +819,11 @@
     #lb-close:active { background-image:url(assets/close-hover.png) !important; }
     @media (hover: hover) { #lb-close:hover { background:url(assets/close-hover.png) center/contain no-repeat !important; border:none !important; border-radius:20px !important; width:56px !important; height:56px !important; } }
 
+
+    /* ── Sem bordas em nenhum botão ── */
+    button, .f-btn, .sf-btn, .btn-see-both, #btn-close, #lb-close, .lb-nav, .lb-zoom-btn { border: none !important; outline: none !important; }
+    button:hover, button:active, button:focus, button:focus-visible { border: none !important; outline: none !important; }
+
     /* ── Filtros: fonte e pressed/ativo em #B1904E ── */
     .f-btn, .sf-btn { color: #B1904E; border-color: rgba(177,144,78,0.45); }
     .sf-btn { opacity: 0.75; }
@@ -1027,10 +1032,7 @@ const MODE = (() => {
 
 // Categorias exibidas no filtro principal conforme modo
 const DISPLAY_CATS = (() => {
-  if (MODE === 'plantas') return [
-    { id: 'pl-pavimentos', label: 'Pavimentos' },
-    { id: 'pl-apartamentos', label: 'Apartamentos' },
-  ];
+  if (MODE === 'plantas') return [{ id: 'plantas', label: 'Plantas' }];
   if (MODE === 'imagens') return GALLERY_CONFIG.categories.filter(c => c.id !== 'plantas');
   return GALLERY_CONFIG.categories;
 })();
@@ -1095,7 +1097,7 @@ function filteredItems() {
 
     // Filtro de categoria
     if (MODE === 'plantas') {
-      if (item.subCategory !== st.cat) return false;
+      // todas as plantas da pasta PLANTAS HUMANIZADAS, sem sub-filtro
     } else {
       if (st.cat && item.category !== st.cat) return false;
       if (st.sub && item.subCategory !== st.sub) return false;
@@ -1412,7 +1414,7 @@ function closeGallery() {
 function init() {
   // Filtro inicial depende do modo
   if (MODE === 'plantas') {
-    st.cat = 'pl-pavimentos';  // primeira tipologia de plantas
+    st.cat = 'plantas';
     st.sub = null;
   } else {
     st.cat = DISPLAY_CATS[0].id;               // 'areas-comuns'
