@@ -1,5 +1,5 @@
 <#
-  deploy.ps1 — Deploy da galeria Sousa Andrade Ryokan para o AWS S3.
+  deploy.ps1 — Deploy da galeria Tenório Legend para o AWS S3.
 
   Uso:
     ./deploy.ps1            # sync completo + cache-control no HTML/JS
@@ -15,7 +15,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$Bucket = 's3://skylineip/Tour Virtual/Sousa Andrade/galeria-ryokan'
+$Bucket = 's3://skylineip/Tour Virtual/tenorio/galeria-legend'
 $NoCache = 'no-cache,no-store,must-revalidate'
 
 # Garante que o script roda a partir da pasta do projeto
@@ -55,4 +55,4 @@ else {
 }
 
 Write-Host 'Deploy concluido.' -ForegroundColor Green
-Write-Host "Base: https://skylineip.s3.sa-east-1.amazonaws.com/Tour+Virtual/Sousa+Andrade/galeria-ryokan/" -ForegroundColor DarkGray
+Write-Host "Base: https://skylineip.s3.sa-east-1.amazonaws.com/Tour+Virtual/tenorio/galeria-legend/" -ForegroundColor DarkGray
