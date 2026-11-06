@@ -820,6 +820,15 @@
     @media (hover: hover) { #lb-close:hover { background:url(assets/close-hover.png) center/contain no-repeat !important; border:none !important; border-radius:20px !important; width:56px !important; height:56px !important; } }
 
 
+    /* ── Botão Diferenciais + overlay ── */
+    #g-header { justify-content: space-between; }
+    #btn-dif { height: 38px; padding: 0 22px; border-radius: 40px; background: #B1904E; color: #332419; cursor: pointer; font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; transition: filter 0.2s var(--ease), transform 0.15s var(--ease); }
+    @media (hover: hover) { #btn-dif:hover { filter: brightness(1.12); } }
+    #btn-dif:active { transform: scale(0.97); }
+    #dif-overlay { position: fixed; inset: 0; z-index: 500; background: #332419; animation: difIn 0.3s ease both; }
+    #dif-overlay iframe { width: 100%; height: 100%; border: none; display: block; background: #332419; }
+    @keyframes difIn { from { opacity: 0; } to { opacity: 1; } }
+
     /* ── Sem bordas em nenhum botão ── */
     button, .f-btn, .sf-btn, .btn-see-both, #btn-close, #lb-close, .lb-nav, .lb-zoom-btn { border: none !important; outline: none !important; }
     button:hover, button:active, button:focus, button:focus-visible { border: none !important; outline: none !important; }
@@ -854,8 +863,12 @@
 
   <!-- Header -->
   <header id="g-header">
+    <button id="btn-dif" type="button">Diferenciais</button>
     <button id="btn-close" title="Fechar galeria" aria-label="Fechar"></button>
   </header>
+
+  <!-- Overlay Diferenciais -->
+  <div id="dif-overlay" hidden><iframe id="dif-frame" title="Diferenciais" allow="fullscreen"></iframe></div>
 
   <!-- Filters -->
   <div id="g-filters">
@@ -978,10 +991,10 @@ const GALLERY_CONFIG = {
     { id:35, type:'image', category:'plantas', isPlant:true, title:'Implantação Geral / Jardim Contemplativo', src:'assets/PLANTAS HUMANIZADAS/35_TEN-INC_LEG_PB_IMPLANTACAO-GERAL_R04.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/35_TEN-INC_LEG_PB_IMPLANTACAO-GERAL_R04.jpg' },
     { id:36, type:'image', category:'plantas', isPlant:true, title:'Térreo', src:'assets/PLANTAS HUMANIZADAS/36_TEN-INC_LEG_PB_TERREO_R04.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/36_TEN-INC_LEG_PB_TERREO_R04.jpg' },
     { id:37, type:'image', category:'plantas', isPlant:true, title:'Vazado', src:'assets/PLANTAS HUMANIZADAS/37_TEN-INC_LEG_PB_VAZADO_R00.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/37_TEN-INC_LEG_PB_VAZADO_R00.jpg' },
-    { id:39, type:'image', category:'plantas', isPlant:true, title:'Tipo 01 a 25', src:'assets/PLANTAS HUMANIZADAS/39_TEN-INC_LEG_PB_TIPO-06-A-24_R04.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/39_TEN-INC_LEG_PB_TIPO-06-A-24_R04.jpg' },
+    { id:26, type:'image', category:'plantas', isPlant:true, title:'Pavimento Tipo', src:'assets/PLANTAS HUMANIZADAS/26_PLANTA_PAVIMENTO-TIPO - Copia.png', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/26_PLANTA_PAVIMENTO-TIPO - Copia.jpg' },
     { id:40, type:'image', category:'plantas', isPlant:true, title:'Cobertura', src:'assets/PLANTAS HUMANIZADAS/40_TEN-INC_LEG_PB_COBERTURA_R03.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/40_TEN-INC_LEG_PB_COBERTURA_R03.jpg' },
-    { id:41, type:'image', category:'plantas', isPlant:true, title:'Unidade 3 Quartos', src:'assets/PLANTAS HUMANIZADAS/41_TEN-INC_LEG_PB_UNIDADE-3QTS_R03.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/41_TEN-INC_LEG_PB_UNIDADE-3QTS_R03.jpg' },
-    { id:42, type:'image', category:'plantas', isPlant:true, title:'Unidade 4 Quartos', src:'assets/PLANTAS HUMANIZADAS/42_TEN-INC_LEG_PB_UNIDADE-4QTS_R02.jpg', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/42_TEN-INC_LEG_PB_UNIDADE-4QTS_R02.jpg' },
+    { id:28, type:'image', category:'plantas', isPlant:true, title:'Apartamento 3 Suítes', src:'assets/PLANTAS HUMANIZADAS/28_PLANTA_APTO-3-SUITES - Copia.png', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/28_PLANTA_APTO-3-SUITES - Copia.jpg' },
+    { id:27, type:'image', category:'plantas', isPlant:true, title:'Apartamento 4 Suítes', src:'assets/PLANTAS HUMANIZADAS/27_PLANTA_APTO-4-SUITES - Copia.png', thumb:'assets/thumbs/PLANTAS HUMANIZADAS/27_PLANTA_APTO-4-SUITES - Copia.jpg' },
 
     // ═══ LOCALIZAÇÃO ═══
     { id:34, type:'image', category:'mapa', title:'Mapa de Localização', src:'assets/IMAGENS/34_TEN-INC_LEG_MAPA_R03.jpg', thumb:'assets/thumbs/IMAGENS/34_TEN-INC_LEG_MAPA_R03.jpg' },
@@ -1426,6 +1439,14 @@ function init() {
   renderGallery();
 
   $('btn-close').addEventListener('click', closeGallery);
+  const difOv = $('dif-overlay'), difFrame = $('dif-frame');
+  $('btn-dif').addEventListener('click', () => {
+    if (!difFrame.getAttribute('src')) difFrame.src = 'diferenciais.html?v=' + Date.now();
+    difOv.hidden = false;
+  });
+  window.addEventListener('message', e => {
+    if (e.source === difFrame.contentWindow && e.data && e.data.action === 'closeGallery') difOv.hidden = true;
+  });
   $('lb-close').addEventListener('click', closeLb);
   elLbPrev.addEventListener('click', () => navLb(-1));
   elLbNext.addEventListener('click', () => navLb(1));

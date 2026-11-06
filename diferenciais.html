@@ -3,366 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diferenciais</title>
+  <title>Diferenciais — Tenório Legend</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      /* Grupo Impper — tema navy imersivo */
       --bg: #332419;
-      --accent: #E57D43;     /* laranja */
+      --surface: #3F2F22;
+      --gold: #B1904E;
+      --cream: #F2EBDD;
+      --soft: rgba(242,235,221,0.78);
+      --line: rgba(177,144,78,0.35);
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
       --ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
+    html, body { height: 100%; background: var(--bg); color: var(--cream); font-family: var(--font-sans); }
+    #scroll { height: 100%; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; padding: 0 clamp(16px, 5vw, 64px) 72px; }
+    #scroll::-webkit-scrollbar { width: 6px; }
+    #scroll::-webkit-scrollbar-thumb { background: rgba(242,235,221,0.28); border-radius: 3px; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    .wrap { max-width: 1080px; margin: 0 auto; }
+    header.top { padding: clamp(72px, 12vh, 120px) 0 clamp(28px, 5vh, 56px); text-align: center; }
+    .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); }
+    h1 { font-family: var(--font-serif); font-weight: 500; font-size: clamp(40px, 7vw, 72px); line-height: 1.05; margin-top: 14px; }
+    .rule { width: 64px; height: 1px; background: var(--gold); margin: 26px auto 0; }
 
-    body {
-      background: var(--bg);
-      overflow: hidden;
-      height: 100vh;
-    }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(16px, 2.4vw, 28px); }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
 
-    /* ── SCROLL CONTAINER ── */
-    #wrap {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      will-change: transform;
-    }
+    section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: clamp(24px, 3.4vw, 44px); opacity: 0; transform: translateY(18px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+    section.card.in { opacity: 1; transform: none; }
+    section.card h2 { font-family: var(--font-serif); font-weight: 600; font-size: clamp(26px, 3.2vw, 36px); color: var(--gold); line-height: 1.1; padding-bottom: 18px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+    ul { list-style: none; }
+    li { position: relative; padding: 13px 0 13px 22px; font-size: 15px; line-height: 1.5; color: var(--soft); border-bottom: 1px solid rgba(242,235,221,0.08); }
+    li:last-child { border-bottom: none; }
+    li::before { content: ''; position: absolute; left: 0; top: 21px; width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
 
-    /* ── IMAGES ── */
-    .img-block {
-      display: block;
-      width: 100%;
-      line-height: 0;
-    }
-
-    .img-block img {
-      width: 100%;
-      height: auto;
-      display: block;
-      opacity: 0;
-      transition: opacity 1.2s var(--ease);
-    }
-    .img-block img.loaded { opacity: 1; }
-
-    /* ── RESPONSIVE IMAGE SETS ── */
-    @media (min-width: 769px) { .imgs-mobile  { display: none; } }
-    @media (max-width: 768px) { .imgs-desktop { display: none; } }
-
-    /* ── CLOSE BUTTON ── */
-    #btn-close {
-      position: fixed;
-      top: 18px;
-      right: 22px;
-      z-index: 100;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.22);
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.75);
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-    }
-    #btn-close:hover {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    /* ── SCROLL HINT ── */
-    #scroll-hint {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      z-index: 100;
-      transition: opacity 0.7s var(--ease);
-    }
-    #scroll-hint.hidden { opacity: 0; pointer-events: none; }
-
-    /* Vertical track */
-    .scroll-track {
-      width: 1.5px;
-      height: 52px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 2px;
-      position: relative;
-      overflow: hidden;
-    }
-    /* Animated fill line */
-    .scroll-track::after {
-      content: '';
-      position: absolute;
-      top: -100%;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--accent);
-      border-radius: 2px;
-      animation: track-slide 1.6s var(--ease) infinite;
-    }
-    @keyframes track-slide {
-      0%   { top: -100%; }
-      50%  { top: 0%; }
-      100% { top: 100%; }
-    }
-
-    /* Arrow head — SVG chevron */
-    .scroll-arrow {
-      display: block;
-      margin-top: 6px;
-      filter: drop-shadow(0 0 4px rgba(255,255,255,0.45));
-      animation: arrow-pulse 1.6s var(--ease) infinite;
-    }
-    @keyframes arrow-pulse {
-      0%, 100% { opacity: 0.4; transform: translateY(0); }
-      50%       { opacity: 1;   transform: translateY(5px); }
-    }
-
-    /* ── PROGRESS ── */
-    #progress {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      height: 2px;
-      background: var(--accent);
-      width: 0%;
-      transition: width 0.15s linear;
-      z-index: 100;
-    }
-
-    /* ── ACESSIBILIDADE / DESEMPENHO ── */
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .img-block img { transition-duration: 0.001ms; }
-      .scroll-track::after, .scroll-arrow { animation: none; }
-    }
-  
-    #btn-close { border:none !important; border-radius:20px !important; width:56px !important; height:56px !important; background:url(assets/close-normal.png) center/contain no-repeat !important; color:transparent; padding:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
-    #btn-close:active { background-image:url(assets/close-hover.png) !important; }
-    @media (hover: hover) { #btn-close:hover { background:url(assets/close-hover.png) center/contain no-repeat !important; border:none !important; border-radius:20px !important; width:56px !important; height:56px !important; } }
-  
-    /* ── Sem bordas em nenhum botão ── */
-    button, .f-btn, .sf-btn, .btn-see-both, #btn-close, #lb-close, .lb-nav, .lb-zoom-btn { border: none !important; outline: none !important; }
-    button:hover, button:active, button:focus, button:focus-visible { border: none !important; outline: none !important; }
+    #btn-close { position: fixed; top: 18px; right: 22px; z-index: 100; width: 56px; height: 56px; border: none; border-radius: 20px; background: url(assets/close-normal.png) center/contain no-repeat; cursor: pointer; padding: 0; outline: none; }
+    #btn-close:active { background-image: url(assets/close-hover.png); }
+    @media (hover: hover) { #btn-close:hover { background-image: url(assets/close-hover.png); } }
+    @media (prefers-reduced-motion: reduce) { #scroll { scroll-behavior: auto; } section.card { transition: none; opacity: 1; transform: none; } }
   </style>
 </head>
 <body>
+<button id="btn-close" type="button" title="Fechar" aria-label="Fechar"></button>
 
-<button id="btn-close" title="Fechar"></button>
+<div id="scroll">
+  <div class="wrap">
+    <header class="top">
+      <div class="eyebrow">Tenório Legend</div>
+      <h1>Diferenciais</h1>
+      <div class="rule"></div>
+    </header>
 
-<div id="scroll-hint">
-  <div class="scroll-track"></div>
-  <svg class="scroll-arrow" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 1l7 7 7-7" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</div>
+    <div class="grid">
+      <section class="card">
+        <h2>Segurança e conforto</h2>
+        <ul>
+          <li>CFTV – circuito fechado de câmeras de segurança</li>
+          <li>Acesso principal do prédio por reconhecimento facial</li>
+          <li>Controle de acesso veicular</li>
+          <li>Infraestrutura para ar-condicionado split na sala e nos quartos</li>
+          <li>Aquecimento de água a gás nos chuveiros</li>
+          <li>Gerador FULL para 100% do empreendimento, incluindo os apartamentos</li>
+          <li>Sonorização ambiente nas áreas comuns</li>
+          <li>Piscina com sistema de aquecimento</li>
+        </ul>
+      </section>
 
-<div id="progress"></div>
-
-<div id="wrap">
-  <!-- Desktop -->
-  <div class="imgs-desktop">
-    <div class="img-block"><img src="assets/diferenciais/ficha.png"        alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/diferenciais.png" alt="" draggable="false"></div>
-  </div>
-  <!-- Mobile -->
-  <div class="imgs-mobile">
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-01.png" alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-02.png" alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-03.png" alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-04.png" alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-05.png" alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-06.png" alt="" draggable="false"></div>
-    <div class="img-block"><img src="assets/diferenciais/mobile/ficha-07.png" alt="" draggable="false"></div>
+      <section class="card">
+        <h2>Tecnologia e sustentabilidade</h2>
+        <ul>
+          <li>Acesso por reconhecimento facial nas áreas comuns</li>
+          <li>Fechadura eletrônica na porta social dos apartamentos</li>
+          <li>Infraestrutura para Wi-Fi nas áreas comuns</li>
+          <li>Infraestrutura para carregamento de veículos elétricos (1 vaga por apto)</li>
+          <li>Infraestrutura para automação dos apartamentos, incluindo iluminação e cortinas</li>
+          <li>Aproveitamento de águas pluviais</li>
+          <li>Reaproveitamento da água proveniente da condensação dos aparelhos de ar-condicionado</li>
+          <li>Captação de reuso de água da chuva</li>
+          <li>Irrigação automatizada do paisagismo</li>
+          <li>Bacias sanitárias com descarga dual flush</li>
+          <li>Sensores de presença nas escadas</li>
+          <li>Iluminação LED nas áreas comuns</li>
+          <li>Tecnologia construtiva em drywall</li>
+          <li>Área de jardim contemplativo / teto verde com projeto paisagístico fantástico, valorizando o bem-estar pleno, com irrigação automática</li>
+          <li>Pele de vidro de alta performance, com 45% de proteção contra o calor e 51% de transmissão de luz</li>
+        </ul>
+      </section>
+    </div>
   </div>
 </div>
 
 <script>
 (function () {
-  const wrap     = document.getElementById('wrap');
-  const hint     = document.getElementById('scroll-hint');
-  const progress = document.getElementById('progress');
-  const btnClose = document.getElementById('btn-close');
+  var cards = document.querySelectorAll('section.card');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { root: document.getElementById('scroll'), threshold: 0.08 });
+    cards.forEach(function (c) { io.observe(c); });
+  } else { cards.forEach(function (c) { c.classList.add('in'); }); }
 
-  // ── Smooth scroll via lerp ──────────────────────────
-  let targetY  = 0;
-  let currentY = 0;
-  let maxScroll = 0;
-  const LERP       = 0.072; // scroll normal
-  const LERP_INTRO = 0.045; // não usado no peek (usa animatePeek), mantido como fallback
-  let   activeLerp = LERP;
-
-  function getMaxScroll() {
-    return wrap.scrollHeight - window.innerHeight;
+  function closeIt() {
+    if (window.parent !== window) window.parent.postMessage({ action: 'closeGallery' }, '*');
+    else if (history.length > 1) history.back();
   }
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  let peekActive    = false;
-  let peekCancelled = false;
-  let peekDelayRef  = null;
-
-  function cancelPeek() {
-    if (peekCancelled) return;
-    peekCancelled = true;
-    clearTimeout(peekDelayRef);
-    // Se já estava animando, entrega o controle ao lerp a partir da posição atual
-    peekActive = false;
-    targetY    = currentY;
-  }
-
-  function easeInOut(t) {
-    return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
-  }
-
-  function animatePeek(from, to, duration, onDone) {
-    const start = performance.now();
-    function step(now) {
-      if (peekCancelled) return; // aborta silenciosamente
-      const t    = Math.min((now - start) / duration, 1);
-      const ease = easeInOut(t);
-      currentY = targetY = from + (to - from) * ease;
-      wrap.style.transform = `translateY(${-currentY}px)`;
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else {
-        currentY = targetY = to;
-        if (onDone) onDone();
-      }
-    }
-    requestAnimationFrame(step);
-  }
-
-  function tick() {
-    if (!peekActive) {
-      currentY = lerp(currentY, targetY, activeLerp);
-      if (Math.abs(currentY - targetY) < 0.05) currentY = targetY;
-      wrap.style.transform = `translateY(${-currentY}px)`;
-    }
-
-    const pct = maxScroll > 0 ? (currentY / maxScroll) * 100 : 0;
-    progress.style.width = pct + '%';
-    hint.classList.toggle('hidden', currentY > 60);
-
-    requestAnimationFrame(tick);
-  }
-
-  // Wheel
-  window.addEventListener('wheel', e => {
-    e.preventDefault();
-    cancelPeek();
-    maxScroll = getMaxScroll();
-    targetY = Math.max(0, Math.min(maxScroll, targetY + e.deltaY * 1.1));
-  }, { passive: false });
-
-  // Touch
-  let touchY0 = 0;
-  window.addEventListener('touchstart', e => {
-    touchY0 = e.touches[0].clientY;
-  }, { passive: true });
-  window.addEventListener('touchmove', e => {
-    e.preventDefault();
-    cancelPeek();
-    maxScroll = getMaxScroll();
-    const dy = touchY0 - e.touches[0].clientY;
-    touchY0  = e.touches[0].clientY;
-    targetY  = Math.max(0, Math.min(maxScroll, targetY + dy * 1.8));
-  }, { passive: false });
-
-  // Keyboard
-  document.addEventListener('keydown', e => {
-    maxScroll = getMaxScroll();
-    const step = window.innerHeight * 0.85;
-    if (['ArrowDown', ' ', 'PageDown'].includes(e.key)) {
-      e.preventDefault();
-      targetY = Math.min(maxScroll, targetY + step);
-    }
-    if (['ArrowUp', 'PageUp'].includes(e.key)) {
-      e.preventDefault();
-      targetY = Math.max(0, targetY - step);
-    }
-    if (e.key === 'Escape') btnClose.click();
-  });
-
-  // Resize — recalcula e clampeia posição atual
-  window.addEventListener('resize', () => {
-    maxScroll = getMaxScroll();
-    targetY  = Math.min(targetY,  Math.max(0, maxScroll));
-    currentY = Math.min(currentY, Math.max(0, maxScroll));
-  });
-
-  // ── Image fade-in ──────────────────────────────────
-  document.querySelectorAll('.img-block img').forEach(img => {
-    if (img.complete) img.classList.add('loaded');
-    else img.addEventListener('load', () => img.classList.add('loaded'));
-  });
-
-  // ── Close ──────────────────────────────────────────
-  btnClose.addEventListener('click', () => {
-    if (window.parent !== window) {
-      window.parent.postMessage({ action: 'closeGallery' }, '*');
-    } else if (window.history.length > 1) {
-      history.back();
-    } else {
-      window.close();
-    }
-  });
-
-  // ── Peek intro ─────────────────────────────────────
-  function peekIntro() {
-    const PEEK_DIST  = Math.round(window.innerHeight * 0.50);
-    const PEEK_DELAY = 1400;
-    const DOWN_DUR   = 1100;
-    const HOLD_DUR   =  700;
-    const UP_DUR     =  950;
-
-    peekDelayRef = setTimeout(() => {
-      if (peekCancelled) return;
-      peekActive = true;
-      animatePeek(0, PEEK_DIST, DOWN_DUR, () => {
-        setTimeout(() => {
-          animatePeek(PEEK_DIST, 0, UP_DUR, () => {
-            peekActive = false;
-          });
-        }, HOLD_DUR);
-      });
-    }, PEEK_DELAY);
-  }
-
-  // Primeiro img visível (respeita qual set está ativo no breakpoint atual)
-  function firstVisibleImg() {
-    const isMobile = window.innerWidth <= 768;
-    return wrap.querySelector(isMobile ? '.imgs-mobile img' : '.imgs-desktop img');
-  }
-
-  const firstImg = firstVisibleImg();
-  if (firstImg && firstImg.complete) {
-    peekIntro();
-  } else if (firstImg) {
-    firstImg.addEventListener('load', peekIntro, { once: true });
-  }
-
-  // ── Init ───────────────────────────────────────────
-  maxScroll = getMaxScroll();
-  requestAnimationFrame(tick);
-
-  window.openDiferenciais = function () {
-    window.location.href = 'diferenciais.html';
-  };
+  document.getElementById('btn-close').addEventListener('click', closeIt);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeIt(); });
 }());
 </script>
 </body>
