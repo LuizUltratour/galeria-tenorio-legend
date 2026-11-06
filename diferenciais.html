@@ -21,6 +21,7 @@
 
     html, body {
       height: 100%;
+      overflow: hidden;
       background: var(--bg) url(assets/bg-info.png) center/cover no-repeat fixed;
       color: var(--dark);
       font-family: var(--font-sans);
@@ -85,12 +86,16 @@
     footer { height: 60px; }
 
     @media (max-width: 800px) {
+      #qs-scroll { height: 100dvh; -webkit-overflow-scrolling: touch; }
       .wrap { padding: 0 22px; }
       #btn-close { top: 10px; right: 14px; }
       #difs { padding: 80px 0 30px; }
-      h1 { font-size: 38px; }
-      .grupos { grid-template-columns: 1fr; gap: 44px; }
-      .grupo h2 { font-size: 30px; }
+      h1 { font-size: 38px; margin-bottom: 22px; }
+      .divisor { margin-bottom: 44px; }
+      .grupos { grid-template-columns: 1fr; gap: 48px; }
+      .grupo { text-align: center; }
+      .grupo h2 { font-size: 30px; padding-bottom: 16px; }
+      li { padding: 13px 4px; font-size: 14px; line-height: 1.75; }
     }
   </style>
 </head>
