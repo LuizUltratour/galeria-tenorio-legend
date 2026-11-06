@@ -25,14 +25,14 @@ Galeria de imagens/plantas/vídeos para injeção via script no 3DVista, hospeda
 galeria/  (Tenório Legend)
 ├── index.html              ← galeria de imagens + plantas (auto-suficiente)
 ├── video-gallery.html      ← galeria de vídeos
-├── diferenciais.html       ← ficha de diferenciais (scroll)
+├── diferenciais.html       ← página de Diferenciais (texto; abre pelo botão da galeria ou pelo 3DVista)
 ├── inject.js               ← loader leve para injeção no 3DVista
 ├── deploy.ps1              ← deploy para o S3 (Windows; sync)
 ├── generate_thumbs.ps1     ← gerador de thumbnails (Windows/GDI+, sem deps)
 ├── generate_thumbs.py      ← gerador alternativo (Python + Pillow)
 └── assets/
     ├── IMAGENS/              ← renders: áreas comuns e apartamento decorado (arquivos soltos)
-    ├── PLANTAS HUMANIZADAS/  ← APARTAMENTOS/ e PAVIMENTOS/
+    ├── PLANTAS HUMANIZADAS/  ← plantas (jpg/png)
     ├── videos/               ← .mp4 (gitignored; direto no S3)
     ├── BOOK-PRINT.pdf        ← book de referência (gitignored, não sobe ao S3)
     └── thumbs/               ← gerado automaticamente (espelha a árvore, .jpg)
@@ -46,35 +46,25 @@ galeria/  (Tenório Legend)
 
 ### Modo `imagens`
 
-| Categoria | Label | Pasta |
-|-----------|-------|-------|
+| Categoria | Label | Origem |
+|-----------|-------|--------|
+| `fachada` | Fachada | `assets/IMAGENS/` (31–33 e Inserção) |
 | `areas-comuns` | Áreas Comuns | `assets/IMAGENS/` |
-| `apartamento`  | Apartamento Decorado | `assets/IMAGENS/` |
+| `apto-3` | Apartamento 3 Quartos | `assets/IMAGENS/` (01–06) |
+| `apto-4` | Apartamento 4 Quartos | `assets/IMAGENS/` (07–13) |
+| `mapa` | Localização | `assets/IMAGENS/` (34) |
 
 ### Modo `plantas`
 
-| Tipologia | Label | Pasta | Formato |
-|-----------|-------|-------|---------|
-| `pl-pavimentos` | Pavimentos | `assets/PLANTAS HUMANIZADAS/PAVIMENTOS/` | cards individuais |
-| `pl-apartamentos` | Apartamentos | `assets/PLANTAS HUMANIZADAS/APARTAMENTOS/` | cards individuais (F01–F15 e Decorado F13) |
+Lista única com todas as plantas de `assets/PLANTAS HUMANIZADAS/` (sem sub-filtros). Cada item é declarado em `GALLERY_CONFIG.items` no `index.html` com `category:'plantas', isPlant:true`.
 
 ---
 
-## Cards de plantas com abas (`cobertura-plan`)
+## Botão e página Diferenciais
 
-Plantas que são **níveis de um mesmo conjunto** podem ser agrupadas num único card com abas
-que alternam (e sobrepõem) as variantes. Quando há **exatamente 2 pisos**, aparece também
-o botão "Ver ambas" (comparação lado a lado); com mais pisos, só as abas. Nenhum item do
-projeto atual usa esse formato — todas as plantas do Legend são cards individuais —
-mas o suporte permanece no motor da galeria para uso futuro:
-
-```js
-{ type:'cobertura-plan', category:'plantas', subCategory:'pl-apartamentos',
-  title:'Pavimentos — Apartamentos', subtitle:'Apartamentos', floors:[
-    { label:'Térreo',       src:'assets/plantas/terreo.jpg',       thumb:'assets/thumbs/plantas/terreo.jpg' },
-    { label:'Tipo',         src:'assets/plantas/tipo.jpg',         thumb:'assets/thumbs/plantas/tipo.jpg' },
-]},
-```
+- **Botão na galeria:** `#btn-dif` ("Diferenciais"), no cabeçalho do `index.html`. Ao clicar, abre `diferenciais.html` num overlay (`#dif-overlay`) por cima da galeria; o botão fechar (ou Esc) da página volta para a galeria (mensagem `closeGallery` tratada só dentro da galeria).
+- **Função dedicada no 3DVista:** `AbrirDiferenciais(1)` abre a página sozinha, em tela cheia; `AbrirDiferenciais(0)` fecha (veja *Integração 3DVista*).
+- **Conteúdo:** os textos ficam direto em `diferenciais.html` (cartões "Segurança e conforto" e "Tecnologia e sustentabilidade").
 
 ---
 
@@ -155,13 +145,25 @@ GaleriaPlantas(1);
 
 // Fecha galeria de plantas
 GaleriaPlantas(0);
+
+// Abre a galeria de vídeos
+AbrirGaleriaVideos(1);
+
+// Fecha a galeria de vídeos
+AbrirGaleriaVideos(0);
+
+// Abre a página de Diferenciais
+AbrirDiferenciais(1);
+
+// Fecha a página de Diferenciais
+AbrirDiferenciais(0);
 ```
 
 ---
 
 ## Cores e tipografia
 
-Tema **verde imersivo** do Tenório Legend:
+Tema **marrom imersivo** do Tenório Legend:
 
 | Token CSS | Valor | Papel |
 |-----------|-------|-------|
