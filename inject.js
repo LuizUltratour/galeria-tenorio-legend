@@ -111,7 +111,7 @@
 
     var iframe = d.createElement('iframe');
     iframe.src = DIFERENCIAIS_URL + '?v=' + Date.now();
-    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#332419;';
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#434040;';
     iframe.setAttribute('allow', 'fullscreen');
 
     overlay.appendChild(iframe);
